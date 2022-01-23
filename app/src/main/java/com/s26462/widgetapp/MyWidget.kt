@@ -22,7 +22,10 @@ import com.s26462.widgetapp.utils.Constants
 import android.graphics.drawable.BitmapDrawable
 
 import android.graphics.Bitmap
+import android.media.MediaPlayer
+import android.provider.MediaStore
 import androidx.core.graphics.drawable.toDrawable
+import kotlin.coroutines.coroutineContext
 
 
 /**
@@ -30,6 +33,14 @@ import androidx.core.graphics.drawable.toDrawable
  */
 class MyWidget : AppWidgetProvider() {
     private var requestCode = 0
+    private val play = "play"
+    private val pause = "pause"
+    private val stop = "stop"
+    private val change = "change"
+
+    private var mp: MediaPlayer? = null
+    var songs: MutableList<Int> = mutableListOf(R.raw.applause,R.raw.birds)
+    var currentSong = 0
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -49,26 +60,79 @@ class MyWidget : AppWidgetProvider() {
     }
 
     override fun onReceive(context: Context, intent: Intent?) {
-        if(intent?.action.equals("com.s26462.widgetapp.Action1")) {
-
-            val appWidgetId = intent?.getIntExtra("appWidgetId",0)
-            var image = intent?.getIntExtra("image",0)
-            if (image == 0) {
-                image = 1;
-            } else {
-                image = 0;
+        super.onReceive(context, intent)
+        when(intent?.action) {
+            "com.s26462.widgetapp.Action1" -> {
+                val appWidgetId = intent?.getIntExtra("appWidgetId", 0)
+                var image = intent?.getIntExtra("image", 0)
+                if (image == 0) {
+                    image = 1;
+                } else {
+                    image = 0;
+                }
+                if (appWidgetId != null && image != null) {
+                    Toast.makeText(context, "Zmieniłeś obrazek", Toast.LENGTH_SHORT).show()
+                    updateAppWidget(
+                        context,
+                        getInstance(context),
+                        appWidgetId,
+                        requestCode++,
+                        image)
+                    }
+                }
+            "com.s26462.widgetapp.Play" -> {
+                player(context,play,songs[currentSong])
             }
-            if (appWidgetId != null && image != null) {
-                Toast.makeText(context, "Zmieniłeś obrazek", Toast.LENGTH_SHORT).show()
-                updateAppWidget(context, getInstance(context), appWidgetId, requestCode++,image)
+            "com.s26462.widgetapp.Pause" -> {
+                player(context,pause,songs[currentSong])
+            }
+            "com.s26462.widgetapp.Stop" -> {
+                Log.e("MediaPlayer", "stop ID: ${mp!!.audioSessionId}")
+                player(context,stop,songs[currentSong])
+            }
+            "com.s26462.widgetapp.Change" -> {
+                player(context,change,songs[currentSong])
             }
         }
-        super.onReceive(context, intent)
     }
 
-}
+    private fun player(context:Context, action: String, song: Int){
 
-internal fun updateAppWidget(
+        when(action){
+            play -> {
+                if (mp == null){
+                    mp = MediaPlayer.create(context,song)
+                    Log.e("MediaPlayer", "ID: ${mp!!.audioSessionId}")
+                }
+                mp?.start()
+                Log.e("MediaPlayer", "Duration: ${mp!!.duration/1000} seconds")
+            }
+            pause -> {
+//                Log.e("MediaPlayer", "Pause ID: ${mp!!.audioSessionId}")
+                if (mp != null) mp?.pause()
+//                Log.e("MediaPlayer", "Pause at: ${mp!!.currentPosition/1000} seconds")
+            }
+            stop -> {
+                Log.e("MediaPlayer", "stop ID: ${mp!!.audioSessionId}")
+                if (mp != null) {
+                    mp?.stop()
+                    mp?.reset()
+                    mp?.release()
+                    mp = null
+                }
+            }
+            change -> {
+                if (song == songs[0]){
+                    currentSong = 1
+                } else {
+                    currentSong = 0
+                }
+                player(context,play,songs[currentSong])
+            }
+        }
+    }
+
+private fun updateAppWidget(
     context: Context,
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int,
@@ -102,35 +166,45 @@ internal fun updateAppWidget(
         context,
         requestCode,
         intent2,
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-    )
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     views.setOnClickPendingIntent(R.id.iv_gallery, pendingIntent2)
 
-    /*
-    * audio
-    */
-    val audioAttributes = AudioAttributes.Builder()
-        .setUsage(AudioAttributes.USAGE_MEDIA)
-        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-        .build()
-    val soundPool = SoundPool.Builder()
-        .setAudioAttributes(audioAttributes)
-        .setMaxStreams(5)
-        .build()
-    soundPool.setOnLoadCompleteListener { soundPool, sampleId, status ->
-        Log.i("media_app", "Loaded sample with id: $sampleId, status: $status")
-    }
-    val prio = 1 // 0 = min priorytet
-    val sampleId = soundPool.load(context, R.raw.applause, prio)
-    val leftVol = 0.85F //0.0 - 1.0
-    val rightVol = 0.9F //0.0 - 1.1
-    val loop = 0 //-1 nieskończone zapętlenie, 0 bez zapętlenia, 3 potrójne zapętlenie
-    val speed = 1F //0.5 - 2.0
-    val streamId = soundPool.play(sampleId, leftVol, rightVol, prio, loop, speed)
-    soundPool.pause(streamId)
-    soundPool.resume(streamId)
-    soundPool.stop(streamId)
-    soundPool.release()
+    val playMusicIntent = Intent(context,MyWidget::class.java)
+    playMusicIntent.action = "com.s26462.widgetapp.Play"
+    val pendingIntentPlayMusic = PendingIntent.getBroadcast(
+        context,
+        requestCode,
+        playMusicIntent,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+    views.setOnClickPendingIntent(R.id.iv_play,pendingIntentPlayMusic)
+
+    val pauseMusicIntent = Intent(context,MyWidget::class.java)
+    pauseMusicIntent.action = "com.s26462.widgetapp.Pause"
+    val pendingIntentPauseMusic = PendingIntent.getBroadcast(
+        context,
+        requestCode,
+        pauseMusicIntent,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+    views.setOnClickPendingIntent(R.id.iv_pause,pendingIntentPauseMusic)
+
+    val stopMusicIntent = Intent(context,MyWidget::class.java)
+    stopMusicIntent.action = "com.s26462.widgetapp.Stop"
+    val pendingIntentStopMusic = PendingIntent.getBroadcast(
+        context,
+        requestCode,
+        stopMusicIntent,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+    views.setOnClickPendingIntent(R.id.iv_stop,pendingIntentStopMusic)
+
+    val changeMusicIntent = Intent(context,MyWidget::class.java)
+    changeMusicIntent.action = "com.s26462.widgetapp.Change"
+    val pendingIntentChangeMusic = PendingIntent.getBroadcast(
+        context,
+        requestCode,
+        changeMusicIntent,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+    views.setOnClickPendingIntent(R.id.iv_change,pendingIntentChangeMusic)
 
     appWidgetManager.updateAppWidget(appWidgetId, views)
+}
 }

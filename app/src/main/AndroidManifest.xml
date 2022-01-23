@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WidgetApp">
         <receiver
-            android:name=".GalleryReveiver"
+            android:name=".MediaPlayer"
             android:enabled="true"
             android:exported="true"></receiver>
         <receiver
@@ -19,6 +19,10 @@
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.s26462.widgetapp.Action1" />
+                <action android:name="com.s26462.widgetapp.Play" />
+                <action android:name="com.s26462.widgetapp.Pause" />
+                <action android:name="com.s26462.widgetapp.Stop" />
+                <action android:name="com.s26462.widgetapp.Change" />
             </intent-filter>
 
             <meta-data
@@ -30,8 +34,9 @@
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
-                    <action android:name="android.intent.action.MAIN" />
-                    <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>

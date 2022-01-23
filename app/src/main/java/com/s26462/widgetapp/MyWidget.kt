@@ -32,21 +32,12 @@ import kotlin.coroutines.coroutineContext
  * Implementation of App Widget functionality.
  */
 class MyWidget : AppWidgetProvider() {
-    private var requestCode = 0
-    private val play = "play"
-    private val pause = "pause"
-    private val stop = "stop"
-    private val change = "change"
 
-    private var mp: MediaPlayer? = null
-    var songs: MutableList<Int> = mutableListOf(R.raw.applause,R.raw.birds)
-    var currentSong = 0
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-        // There may be multiple widgets active, so update all of them
         for (appWidgetId in appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId, requestCode++,0)
         }
@@ -61,6 +52,7 @@ class MyWidget : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent?) {
         super.onReceive(context, intent)
+
         when(intent?.action) {
             "com.s26462.widgetapp.Action1" -> {
                 val appWidgetId = intent?.getIntExtra("appWidgetId", 0)
@@ -83,11 +75,11 @@ class MyWidget : AppWidgetProvider() {
             "com.s26462.widgetapp.Play" -> {
                 player(context,play,songs[currentSong])
             }
+
             "com.s26462.widgetapp.Pause" -> {
                 player(context,pause,songs[currentSong])
             }
             "com.s26462.widgetapp.Stop" -> {
-                Log.e("MediaPlayer", "stop ID: ${mp!!.audioSessionId}")
                 player(context,stop,songs[currentSong])
             }
             "com.s26462.widgetapp.Change" -> {
@@ -108,13 +100,17 @@ class MyWidget : AppWidgetProvider() {
                 Log.e("MediaPlayer", "Duration: ${mp!!.duration/1000} seconds")
             }
             pause -> {
-//                Log.e("MediaPlayer", "Pause ID: ${mp!!.audioSessionId}")
-                if (mp != null) mp?.pause()
-//                Log.e("MediaPlayer", "Pause at: ${mp!!.currentPosition/1000} seconds")
+
+                if (mp != null) {
+                    Log.e("MediaPlayer", "Pause ID: ${mp!!.audioSessionId}")
+                    Log.e("MediaPlayer", "Pause at: ${mp!!.currentPosition / 1000} seconds")
+                    mp?.pause()
+                }
             }
             stop -> {
-                Log.e("MediaPlayer", "stop ID: ${mp!!.audioSessionId}")
+
                 if (mp != null) {
+                    Log.e("MediaPlayer", "stop ID: ${mp!!.audioSessionId}")
                     mp?.stop()
                     mp?.reset()
                     mp?.release()
@@ -122,17 +118,39 @@ class MyWidget : AppWidgetProvider() {
                 }
             }
             change -> {
-                if (song == songs[0]){
-                    currentSong = 1
-                } else {
-                    currentSong = 0
+                if (mp != null) {
+                    Log.e("MediaPlayer", "song: $song")
+                    Log.e("MediaPlayer", "songs[0]: ${songs[0]}")
+                    if (song == songs[0]) {
+                        currentSong = 1
+                    } else {
+                        currentSong = 0
+                    }
+                    mp?.stop()
+                    mp?.reset()
+                    mp?.release()
+                    mp = null
                 }
-                player(context,play,songs[currentSong])
+                player(context, play, songs[currentSong])
             }
         }
     }
 
-private fun updateAppWidget(
+    companion object {
+        private var requestCode = 0
+        private val play = "play"
+        private val pause = "pause"
+        private val stop = "stop"
+        private val change = "change"
+
+        private var mp: MediaPlayer? = null
+        var songs: MutableList<Int> = mutableListOf(R.raw.applause,R.raw.birds)
+        var currentSong = 0
+    }
+
+}
+
+internal fun updateAppWidget(
     context: Context,
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int,
@@ -206,5 +224,4 @@ private fun updateAppWidget(
     views.setOnClickPendingIntent(R.id.iv_change,pendingIntentChangeMusic)
 
     appWidgetManager.updateAppWidget(appWidgetId, views)
-}
 }

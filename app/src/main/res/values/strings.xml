@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">WidgetApp</string>
-    <string name="appwidget_text">EXAMPLE</string>
+    <string name="appwidget_text">My widget</string>
     <string name="add_widget">Add widget</string>
     <string name="app_widget_description">This is an app widget description</string>
     <string name="appwidget_btn_text">Otwórz stronę</string>
+    <string name="appwidget_btn_nextImage_text">Zmień obraz</string>
 </resources>

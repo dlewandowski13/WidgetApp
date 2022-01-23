@@ -3,6 +3,8 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/dawid/AndroidStudioProjects/WidgetApp/app/src/main/res/drawable/custom_layout.xml" value="0.3828125" />
+        <entry key="..\:/Users/dawid/AndroidStudioProjects/WidgetApp/app/src/main/res/layout/item.xml" value="0.20520833333333333" />
         <entry key="..\:/Users/dawid/AndroidStudioProjects/WidgetApp/app/src/main/res/layout/my_widget.xml" value="0.25" />
       </map>
     </option>

@@ -9,18 +9,18 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
-        <TextView
-            android:id="@+id/appwidget_text"
-            style="@style/Widget.WidgetApp.AppWidget.InnerView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/appwidget_text"
-            android:text="@string/appwidget_text"
-            android:textSize="24sp"
-            android:textStyle="bold|italic" />
+<!--        <TextView-->
+<!--            android:id="@+id/appwidget_text"-->
+<!--            style="@style/Widget.WidgetApp.AppWidget.InnerView"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_centerHorizontal="true"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:layout_margin="8dp"-->
+<!--            android:contentDescription="@string/appwidget_text"-->
+<!--            android:text="@string/appwidget_text"-->
+<!--            android:textSize="24sp"-->
+<!--            android:textStyle="bold|italic" />-->
 
         <Button
             android:id="@+id/btn_openWeb"
@@ -34,16 +34,13 @@
             android:textSize="24sp"
             android:textStyle="bold|italic" />
 
-        <Button
-            android:id="@+id/button2"
+        <ImageView
+            android:id="@+id/iv_gallery"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/appwidget_btn_text"
-            android:text="@string/appwidget_btn_text"
-            android:textSize="24sp"
-            android:textStyle="bold|italic"/>
+            android:layout_height="wrap_content"/>
+<!--            android:background="@drawable/custom_layout"-->
+
+
+
     </LinearLayout>
 </LinearLayout>
